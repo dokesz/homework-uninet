@@ -44,6 +44,7 @@ class BaseController extends \Phalcon\Mvc\Controller
                 'controller' => 'error',
                 'action' => 'forbidden'
             ]);
+            return;
         }
 
         $permissionId = $permission->id;
@@ -59,6 +60,7 @@ class BaseController extends \Phalcon\Mvc\Controller
                 'controller' => 'error',
                 'action' => 'forbidden'
             ]);
+            return;
         }
 
         return true;
