@@ -1,0 +1,35 @@
+name: uninet-fullstack
+
+services:
+  database:
+    image: postgres:17.2-bookworm
+    volumes:
+      - ./database/data:/var/lib/postgresql/data
+      - ./database/probafeladat.sql:/docker-entrypoint-initdb.d/probafeladat.sql
+    ports:
+      - 8432:5432
+    environment:
+      POSTGRES_DB: probafeladat
+      POSTGRES_USER: teszt
+      POSTGRES_PASSWORD: elek
+
+  api:
+    build:
+      context: ./
+      dockerfile: api/Dockerfile
+    ports:
+      - 8680:80
+    volumes:
+      - ./api:/var/www/html
+      - /var/www/html/vendor
+      - ./api/phalcon:/var/www/html/vendor/phalcon
+
+  app:
+    build:
+      context: ./
+      dockerfile: app/Dockerfile
+    ports:
+      - 8630:5173
+    volumes:
+      - ./app:/app
+      - /app/node_modules

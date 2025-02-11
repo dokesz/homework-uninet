@@ -1,0 +1,6 @@
+{
+  "intelephense.environment.includePaths": ["${workspaceFolder}/api"],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.requireConfig": true
+}
