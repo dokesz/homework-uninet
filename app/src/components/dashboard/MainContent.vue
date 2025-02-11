@@ -163,13 +163,13 @@ import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import { useRouter } from 'vue-router'
 import { logout } from '../../api/logout'
-import { listUsers, updateUser, deleteUser } from '../../api/users-crud'
+import { listUsers, updateUser, deleteUser } from '../../api/usersCrud'
+import { handleError, forbidden } from '../../api/utils/errorHandlers'
 import { ref, onMounted } from 'vue'
 import { Pencil, Trash } from 'lucide-vue-next'
 
 const router = useRouter()
 const data = ref([])
-const forbidden = ref(false)
 const editDialogVisible = ref(false)
 const deleteUserDialog = ref(false)
 const selectedKey = ref({})
@@ -230,8 +230,6 @@ onMounted(async () => {
       router.push('/')
     } else if (error.response && error.response.status === 403) {
       forbidden.value = true
-    } else {
-      console.error('Error fetching user list:', error)
     }
   }
 })
@@ -242,10 +240,14 @@ const confirmDeleteUser = (user) => {
 }
 
 const handleDeleteUser = async () => {
-  const res = await deleteUser(currentRow.value)
-  data.value = data.value.filter((val) => val.id !== currentRow.value.id)
-  deleteUserDialog.value = false
-  currentRow.value = {}
+  try {
+    const res = await deleteUser(currentRow.value)
+    data.value = data.value.filter((val) => val.id !== currentRow.value.id)
+    deleteUserDialog.value = false
+    currentRow.value = {}
+  } catch (error) {
+    handleError(error, router)
+  }
 }
 
 const editUser = (user) => {
@@ -279,19 +281,19 @@ const saveEdit = async () => {
   const selectedPermissions = getSelectedPermissions()
   currentRow.value.permissions = selectedPermissions
 
-  const response = await updateUser(currentRow.value)
+  try {
+    const response = await updateUser(currentRow.value)
+    if (response) {
+      const res = await listUsers()
+      data.value = res.people
+    }
+  } catch (error) {
+    handleError(error, router)
+  }
 
   currentRow.value = {}
   selectedKey.value = {}
   editDialogVisible.value = false
-
-  try {
-    const res = await listUsers()
-    data.value = res.people
-  } catch (error) {
-    forbidden.value = true
-    console.error('Error fetching user list:', error)
-  }
 }
 
 const handleSignOut = () => {
